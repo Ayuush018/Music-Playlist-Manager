@@ -1,0 +1,6 @@
+4 "Billie Jean" "Michael Jackson"
+1 "Bohemian Rhapsody" "Queen"
+2 "Hotel California" "Eagles"
+3 "Imagine" "John Lennon"
+5 "Sweet Child O' Mine" "Guns N' Roses"
+6 "trouble" "frank ocean"

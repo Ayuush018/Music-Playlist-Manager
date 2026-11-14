@@ -1,0 +1,36 @@
+# Build directories and artifacts
+build/
+bin/
+obj/
+out/
+cmake-build-*/
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# IDE and Editor configurations
+.vscode/
+.vs/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System specific
+.DS_Store
+Thumbs.db
+
+# Test artifacts (keep data/playlist.txt structure)
+data/test_*.txt
+test_runner*
