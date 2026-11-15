@@ -324,6 +324,15 @@ void DoublyLinkedList::setCurrent(SongNode* node) {
     current = node;
 }
 
+bool DoublyLinkedList::setCurrentById(int id) {
+    SongNode* target = findById(id);
+    if (target != nullptr) {
+        current = target;
+        return true;
+    }
+    return false;
+}
+
 SongNode* DoublyLinkedList::getHead() const {
     return head;
 }

@@ -74,6 +74,60 @@ public:
      */
     void reloadData();
     bool saveData() const;
+
+    // --- Programmatic API for GUI & external coordinators ---
+    /**
+     * @brief Programmatically adds a song with auto-increment ID and persists to file.
+     * @return Assigned unique ID on success, or -1 on invalid input.
+     */
+    int addSong(const std::string& title, const std::string& artist);
+
+    /**
+     * @brief Programmatically deletes a song by ID, updates selection, and persists.
+     * @return true if deleted, false if not found.
+     */
+    bool deleteSong(int id);
+
+    /**
+     * @brief Programmatically sorts the playlist in-place and persists.
+     */
+    void sortPlaylist();
+
+    /**
+     * @brief Programmatically picks a random song as current without mutating list order.
+     * @return Pointer to selected song or nullptr if empty.
+     */
+    SongNode* shuffle();
+
+    /**
+     * @brief Sets the currently active song by ID.
+     */
+    bool selectSong(int id);
+
+    /**
+     * @brief Advances to the next song in the playlist.
+     */
+    bool playNext();
+
+    /**
+     * @brief Rewinds to the previous song in the playlist.
+     */
+    bool playPrevious();
+
+    /**
+     * @brief Gets the currently active song node.
+     */
+    SongNode* getCurrentSong() const;
+
+    /**
+     * @brief Returns total song count.
+     */
+    int getSongCount() const;
+
+    /**
+     * @brief Returns the data file path being used.
+     */
+    std::string getDataFilePath() const;
 };
 
 #endif // PLAYLISTMANAGER_H

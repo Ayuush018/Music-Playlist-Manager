@@ -29,6 +29,14 @@
 
 PlaylistManager::PlaylistManager(std::string filePath)
     : dataFilePath(std::move(filePath)), nextSongId(1) {
+    // Resolve data file path: if default relative path doesn't exist in CWD,
+    // check if it exists in parent directory (e.g. when run from build/ folder)
+    if (!std::ifstream(dataFilePath).good()) {
+        std::string fallback = "../" + dataFilePath;
+        if (std::ifstream(fallback).good()) {
+            dataFilePath = fallback;
+        }
+    }
     ensureDataDirectoryExists();
     loadFromFile();
 }
@@ -517,4 +525,57 @@ void PlaylistManager::reloadData() {
 
 bool PlaylistManager::saveData() const {
     return saveToFile();
+}
+
+int PlaylistManager::addSong(const std::string& title, const std::string& artist) {
+    std::string t = trim(title);
+    std::string a = trim(artist);
+    if (t.empty() || a.empty()) {
+        return -1;
+    }
+    int newId = nextSongId++;
+    playlist.addSong(newId, t, a);
+    saveToFile();
+    return newId;
+}
+
+bool PlaylistManager::deleteSong(int id) {
+    bool success = playlist.removeSong(id);
+    if (success) {
+        saveToFile();
+    }
+    return success;
+}
+
+void PlaylistManager::sortPlaylist() {
+    playlist.sortByTitle();
+    saveToFile();
+}
+
+SongNode* PlaylistManager::shuffle() {
+    return playlist.getRandomSong();
+}
+
+bool PlaylistManager::selectSong(int id) {
+    return playlist.setCurrentById(id);
+}
+
+bool PlaylistManager::playNext() {
+    return playlist.nextSong();
+}
+
+bool PlaylistManager::playPrevious() {
+    return playlist.previousSong();
+}
+
+SongNode* PlaylistManager::getCurrentSong() const {
+    return playlist.getCurrentSong();
+}
+
+int PlaylistManager::getSongCount() const {
+    return playlist.getSize();
+}
+
+std::string PlaylistManager::getDataFilePath() const {
+    return dataFilePath;
 }

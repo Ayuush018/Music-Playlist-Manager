@@ -156,6 +156,13 @@ public:
     void setCurrent(SongNode* node);
 
     /**
+     * @brief Sets the current song pointer by unique Song ID.
+     * @param id Song ID to set as current.
+     * @return true if found and set, false otherwise.
+     */
+    bool setCurrentById(int id);
+
+    /**
      * @brief Gets the head node pointer (read-only for serialization/traversal).
      */
     SongNode* getHead() const;

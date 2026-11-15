@@ -20,6 +20,15 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
+# Qt Generated files
+moc_*.cpp
+moc_*.h
+ui_*.h
+qrc_*.cpp
+*.qrc.depends
+*.autosave
+.qmake.stash
+
 # IDE and Editor configurations
 .vscode/
 .vs/

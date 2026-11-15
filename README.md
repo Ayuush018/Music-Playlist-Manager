@@ -1,6 +1,10 @@
 # Music Playlist Manager
 
-A modular, high-performance, console-based **Music Playlist Manager** written in **C++17**, engineered for the **Advanced Data Structures and Algorithms (ADSA)** curriculum. The core of this project is a custom **Doubly Linked List** built completely from scratch without reliance on `std::list`, `std::vector`, or third-party container libraries.
+A modular, high-performance **Music Playlist Manager** written in **C++17**, engineered for the **Advanced Data Structures and Algorithms (ADSA)** curriculum. The core of this project is a custom **Doubly Linked List** built completely from scratch without reliance on `std::list`, `std::vector`, or third-party container libraries.
+
+The project features two distinct user interfaces built on top of the exact same data structure backend:
+1. **Interactive Console CLI (`MusicPlaylistManagerCLI`):** A terminal-based menu-driven management system.
+2. **Modern Desktop GUI (`MusicPlaylistManagerGUI`):** A Spotify-inspired dark desktop application built with **Qt 6 Widgets**, providing real-time visual feedback, responsive layouts, search filtering, inline deletion, modal dialogs, and playback controls.
 
 > **Note:** This project is a playlist metadata and queue management system, not an audio decoder or streaming client. It does not play audio files.
 
@@ -13,19 +17,22 @@ A modular, high-performance, console-based **Music Playlist Manager** written in
 4. [Technologies Used](#technologies-used)
 5. [Data Structure Architecture](#data-structure-architecture)
 6. [Doubly Linked List Mechanics](#doubly-linked-list-mechanics)
-7. [Project Structure](#project-structure)
-8. [Compiler Installation Guide](#compiler-installation-guide)
-9. [Build and Execution](#build-and-execution)
-   - [Method 1: Direct Compilation with g++](#method-1-direct-compilation-with-g)
-   - [Method 2: Building with CMake](#method-2-building-with-cmake)
-10. [Application Usage & Workflow](#application-usage--workflow)
-11. [File Persistence Mechanism](#file-persistence-mechanism)
-12. [Time and Space Complexity Analysis](#time-and-space-complexity-analysis)
-13. [Limitations](#limitations)
-14. [Future Roadmap](#future-roadmap)
-15. [Example Terminal Output](#example-terminal-output)
-16. [Author & Contributors](#author--contributors)
-17. [License](#license)
+7. [Qt 6 GUI Desktop Interface](#qt-6-gui-desktop-interface)
+8. [Project Structure](#project-structure)
+9. [Installation & Requirements](#installation--requirements)
+   - [Compiler Installation](#compiler-installation)
+   - [Qt 6 Setup Guide](#qt-6-setup-guide)
+10. [Build and Execution](#build-and-execution)
+   - [Building with CMake (CLI & GUI)](#building-with-cmake-cli--gui)
+   - [Direct CLI Compilation with g++](#direct-cli-compilation-with-g)
+11. [Application Usage & Workflow](#application-usage--workflow)
+12. [File Persistence Mechanism](#file-persistence-mechanism)
+13. [Time and Space Complexity Analysis](#time-and-space-complexity-analysis)
+14. [Limitations](#limitations)
+15. [Future Roadmap](#future-roadmap)
+16. [Example Outputs](#example-outputs)
+17. [Author & Contributors](#author--contributors)
+18. [License](#license)
 
 ---
 
@@ -40,6 +47,7 @@ This project implements:
 - Copy prevention (deleted copy constructor / assignment) to avoid dangling pointer shallow copies.
 - File serialization preserving song data, titles with spaces, and special symbols across sessions.
 - In-place alphabetical sorting by pointer rewiring without converting into auxiliary arrays.
+- Dual frontend architecture (Console CLI & Qt 6 GUI) sharing a single source of truth.
 
 ---
 
@@ -48,7 +56,8 @@ This project implements:
 - **Pointer Mastery:** Solidify understanding of two-way pointer links (`prev` $\leftrightarrow$ `next`) and edge-case pointer updating (endpoints, single-node lists, empty lists).
 - **Dynamic Memory Safety:** Enforce proper lifecycle management where each allocated `SongNode` is explicitly tracked and deallocated.
 - **Algorithm Design:** Implement in-place sorting and bidirectional traversal over node pointers.
-- **Robust Engineering:** Practice defensive input validation, cross-platform file stream management, and clean modular class design.
+- **Single Source of Truth:** Demonstrate how a modern graphical user interface can bind directly to an underlying custom data structure without duplicating storage.
+- **Defensive Engineering:** Implement robust input validation, fault-tolerant deserialization, and cross-platform compilation.
 
 ---
 
@@ -58,22 +67,24 @@ This project implements:
 - **Delete Song:** Locates by ID, cleanly stitches neighboring pointers, updates `head`/`tail`/`current`, deallocates memory, and saves changes.
 - **Bidirectional Traversal:** View playlist ordered forward (`head` $\to$ `tail`) or backward (`tail` $\to$ `head`), displaying full track metadata and marking the currently playing track.
 - **Track Navigation:** Advance to next song or rewind to previous song, respecting sequence boundary guards.
-- **Active Track Inspection:** Displays complete details for the active `current` song.
-- **Case-Insensitive Search:** Query songs by unique ID or by song title (with automatic trimming and case folding).
+- **Active Track Inspection:** Displays complete details for the active `current` song (`NOW SELECTED`).
+- **Case-Insensitive Search:** Query songs by unique ID or by song title (with automatic trimming and case folding). In the GUI, search dynamically filters table rows.
 - **True In-Place Alphabetical Sorting:** Sorts tracks (A-Z) by rewiring node pointers directly on the doubly linked list.
-- **Shuffle Play:** Uses `<random>` (`std::mt19937`) to pick a uniformly distributed random track and updates the `current` cursor without mutating playlist sequence order.
+- **Shuffle Selection:** Uses `<random>` (`std::mt19937`) to pick a uniformly distributed random track and updates the `current` cursor without mutating playlist sequence order.
+- **Double-Click Row Selection (GUI):** Double-clicking any row in the GUI table immediately sets that track as active in the underlying Doubly Linked List.
 - **Crash-Resilient Persistence:** Loads previously saved playlists on boot, skips corrupted lines gracefully, and guarantees unique ID resumption.
 
 ---
 
 ## 4. Technologies Used
 
-- **Language:** C++17
+- **Programming Language:** C++17
 - **Primary Data Structure:** Custom Doubly Linked List (`SongNode`)
-- **Memory Management:** Raw dynamic pointers (`new`, `delete`), RAII destructor
+- **Desktop GUI Framework:** Qt 6 (Qt Widgets, QSS Styling)
+- **Memory Management:** Raw dynamic pointers (`new`, `delete`), RAII lifecycle
 - **I/O & Persistence:** Standard streams (`<iostream>`, `<fstream>`, `<sstream>`, `<iomanip>` with `std::quoted`)
 - **Randomization:** `<random>` (`std::random_device`, `std::mt19937`, `std::uniform_int_distribution`)
-- **Build Systems:** CMake (3.12+) and direct `g++` compilation
+- **Build System:** CMake 3.16+
 - **Platforms Supported:** Windows 10/11, Linux (Ubuntu, Debian, Fedora, Arch), macOS
 
 ---
@@ -99,7 +110,7 @@ struct SongNode {
 Maintains list state and encapsulation:
 - `SongNode* head`: Points to the first track in the sequence.
 - `SongNode* tail`: Points to the final track in the sequence.
-- `SongNode* current`: Points to the currently active / playing track.
+- `SongNode* current`: Points to the currently active / selected track.
 - `int size`: Tracks the count of allocated nodes.
 
 ---
@@ -132,101 +143,151 @@ Maintains list state and encapsulation:
 
 ---
 
-## 7. Project Structure
+## 7. Qt 6 GUI Desktop Interface
+
+The desktop GUI (`MusicPlaylistManagerGUI`) provides a Spotify-inspired dark aesthetic while binding strictly to the `PlaylistManager` and `DoublyLinkedList` backend:
+
+```text
++-----------------------------------------------------------------------------------------------+
+|  ♫ MUSIC MANAGER   |  My Music Collection                                                     |
+|                    |  Powered by Custom Doubly Linked List with In-Place Pointer Sorting      |
+|  🏠 Home           |                                                                          |
+|  🎵 My Playlist    |  [ 🔍 Search by title or artist... ]  [+ Add Song]  [🔀 Shuffle]  [🔤 Sort]|
+|  📑 All Songs      +--------------------------------------------------------------------------+
+|  🔍 Search Library |  ID   | TITLE                    | ARTIST          | ACTION              |
+|                    |  1    | ▶ Bohemian Rhapsody     | Queen           | [🗑 Delete]         |
+|  PLAYLIST INFO     |  2    | Hotel California         | Eagles          | [🗑 Delete]         |
+|  Total Songs: 5    |  3    | Imagine                  | John Lennon     | [🗑 Delete]         |
+|  File: playlist.txt|  4    | Billie Jean              | Michael Jackson | [🗑 Delete]         |
+|  Engine: DLL (ADSA)|  5    | Sweet Child O' Mine      | Guns N' Roses   | [🗑 Delete]         |
++--------------------+--------------------------------------------------------------------------+
+| NOW SELECTED       |                                                                          |
+| Bohemian Rhapsody  |                     [ ⏮ Prev ]    [ 🔀 Shuffle ]    [ Next ⏭ ]        |
+| Queen              |                                                   Selected ID: 1 • In RAM|
++-----------------------------------------------------------------------------------------------+
+```
+
+### GUI Design Highlights
+- **Palette:** Dark charcoal (`#121212`), surface cards (`#181818`), input fields (`#242424`), and Spotify green accent (`#1DB954`).
+- **Responsive Three-Section Layout:** Fixed 220px left sidebar, flexible central table area, and 90px fixed bottom panel.
+- **Direct Backend Refresh:** The GUI table never maintains an independent copy of playlist nodes. It iterates from `head` through `->next` on demand.
+- **Real-Time Search Filter:** Typing in the search bar dynamically filters table visibility without changing the backend selection.
+- **Double-Click Interaction:** Double-clicking any song selects it as the active `current` pointer in the linked list.
+- **Safe Dialogs:** Dedicated `AddSongDialog` validates input, and deletion prompts a `QMessageBox` confirmation.
+
+---
+
+## 8. Project Structure
 
 ```text
 Music-Playlist-Manager/
 ├── include/
 │   ├── Song.h               # SongNode declaration and display interfaces
-│   ├── DoublyLinkedList.h   # DoublyLinkedList class declaration
-│   └── PlaylistManager.h    # UI coordinator, validation, and file I/O
+│   ├── DoublyLinkedList.h   # DoublyLinkedList class declaration and pointer methods
+│   ├── PlaylistManager.h    # UI coordinator, validation, and file persistence
+│   └── MainWindow.h         # Qt 6 MainWindow and AddSongDialog declarations
 ├── src/
-│   ├── main.cpp             # Application entry point
+│   ├── main.cpp             # Legacy CLI entry point
+│   ├── main_cli.cpp         # Dedicated CLI application entry point
+│   ├── main_gui.cpp         # Qt 6 GUI application entry point
 │   ├── Song.cpp             # SongNode implementation
 │   ├── DoublyLinkedList.cpp # Pointer-level linked list operations
-│   └── PlaylistManager.cpp  # Menu management, input handling, serialization
+│   ├── PlaylistManager.cpp  # Menu management, input handling, serialization
+│   └── MainWindow.cpp       # Qt 6 GUI implementation and Spotify dark styling
 ├── data/
 │   └── playlist.txt         # Persistent text storage for playlist tracks
-├── CMakeLists.txt           # Standard CMake build configuration
-├── .gitignore               # Ignored build artifacts and temp files
-├── LICENSE                  # Open-source license file
+├── CMakeLists.txt           # Multi-target build configuration (CLI + Qt 6 GUI)
+├── .gitignore               # Excludes binaries, object files, Qt MOC, and IDE files
+├── LICENSE                  # MIT License
 └── README.md                # Comprehensive documentation
 ```
 
 ---
 
-## 8. Compiler Installation Guide
+## 9. Installation & Requirements
 
-### Windows
-- **MinGW-w64 (GCC):** Install via [MSYS2](https://www.msys2.org/) or [WinLibs](https://winlibs.com/). Add `bin` folder to system `PATH`.
-- Verify in PowerShell:
-  ```powershell
-  g++ --version
+### Compiler Installation
+- **Windows:** MinGW-w64 (GCC 7+) or MSVC (Visual Studio 2019/2022).
+- **Linux:** `sudo apt install build-essential cmake`
+- **macOS:** `xcode-select --install`
+
+### Qt 6 Setup Guide
+The GUI target requires **Qt 6 (Widgets module)**:
+- **Windows (Configured Environment):**
+  - **Qt Version:** Qt 6.12.0 MinGW 64-bit kit installed at `C:\Qt\6.12.0\mingw_64`.
+  - **Compiler:** MinGW GCC 13.1.0 64-bit at `C:\Qt\Tools\mingw1310_64\bin`.
+  - **Build Tool:** Ninja at `C:\Qt\Tools\Ninja\ninja.exe` and CMake at `C:\Qt\Tools\CMake_64\bin\cmake.exe`.
+- **Linux (Ubuntu / Debian):**
+  ```bash
+  sudo apt install qt6-base-dev libqt6widgets6 ninja-build
+  ```
+- **macOS (Homebrew):**
+  ```bash
+  brew install qt@6 ninja
   ```
 
-### Linux (Ubuntu / Debian)
-```bash
-sudo apt update
-sudo apt install build-essential cmake
-g++ --version
-```
-
-### macOS
-```bash
-xcode-select --install
-# Optionally install cmake via Homebrew:
-brew install cmake
-clang++ --version
-```
-
 ---
 
-## 9. Build and Execution
+## 10. Build and Execution
 
-### Method 1: Direct Compilation with g++
+### Building with CMake and Qt 6.12 (Verified on Windows)
 
-Navigate to the project root directory:
+CMake is configured to build both executables:
+- `MusicPlaylistManagerCLI` (Standalone Console Application)
+- `MusicPlaylistManagerGUI` (Modern Qt 6 Desktop Application)
 
-**Windows (PowerShell / Command Prompt):**
+**1. Configure with Qt 6.12 MinGW 64-bit kit:**
 ```powershell
-g++ -std=c++17 -Wall -Wextra -Iinclude src/main.cpp src/Song.cpp src/DoublyLinkedList.cpp src/PlaylistManager.cpp -o MusicPlaylistManager.exe
-.\MusicPlaylistManager.exe
+$env:Path = "C:\Qt\Tools\mingw1310_64\bin;C:\Qt\Tools\Ninja;C:\Qt\6.12.0\mingw_64\bin;C:\Qt\Tools\CMake_64\bin;" + $env:Path
+
+cmake -S . -B build -G "Ninja" `
+  -DCMAKE_PREFIX_PATH="C:/Qt/6.12.0/mingw_64" `
+  -DCMAKE_CXX_COMPILER="C:/Qt/Tools/mingw1310_64/bin/g++.exe" `
+  -DCMAKE_MAKE_PROGRAM="C:/Qt/Tools/Ninja/ninja.exe"
 ```
 
-**Linux / macOS (Terminal):**
-```bash
-g++ -std=c++17 -Wall -Wextra -Iinclude src/main.cpp src/Song.cpp src/DoublyLinkedList.cpp src/PlaylistManager.cpp -o MusicPlaylistManager
-./MusicPlaylistManager
+**2. Compile all targets:**
+```powershell
+cmake --build build
 ```
 
----
+**3. Deploy runtime dependencies for GUI (First-time deployment):**
+```powershell
+& "C:\Qt\6.12.0\mingw_64\bin\windeployqt.exe" --no-translations "build/MusicPlaylistManagerGUI.exe"
+```
 
-### Method 2: Building with CMake
+**4. Run Applications:**
+```powershell
+# Run the Desktop GUI:
+.\build\MusicPlaylistManagerGUI.exe
 
-```bash
-# 1. Create and enter build directory
-mkdir build
-cd build
-
-# 2. Generate build files
-cmake ..
-
-# 3. Build executable
-cmake --build .
-
-# 4. Run application
-# On Windows:
-.\MusicPlaylistManager.exe
-# On Linux / macOS:
-./MusicPlaylistManager
+# Run the Console CLI:
+.\build\MusicPlaylistManagerCLI.exe
 ```
 
 ---
 
-## 10. Application Usage & Workflow
+### Direct CLI Compilation with g++
 
-Upon launching the executable, the user is presented with the interactive main menu:
+The console application can also be compiled directly with any standard C++17 compiler without CMake or Qt:
 
+**Windows:**
+```powershell
+g++ -std=c++17 -Wall -Wextra -Iinclude src/main.cpp src/Song.cpp src/DoublyLinkedList.cpp src/PlaylistManager.cpp -o MusicPlaylistManagerCLI.exe
+.\MusicPlaylistManagerCLI.exe
+```
+
+**Linux / macOS:**
+```bash
+g++ -std=c++17 -Wall -Wextra -Iinclude src/main.cpp src/Song.cpp src/DoublyLinkedList.cpp src/PlaylistManager.cpp -o MusicPlaylistManagerCLI
+./MusicPlaylistManagerCLI
+```
+
+---
+
+## 11. Application Usage & Workflow
+
+### Console Menu Interface
 ```text
 ==================================================
               MUSIC PLAYLIST MANAGER              
@@ -247,14 +308,18 @@ Upon launching the executable, the user is presented with the interactive main m
   Enter your choice:
 ```
 
-### Input Safety & Resilience
-- **Non-numeric protection:** Entering letters or symbols when a numeric choice or ID is requested prompts a descriptive error without crashing or entering infinite loops.
-- **Empty input rejection:** Empty strings or whitespace-only inputs for song titles and artists are rejected.
-- **Boundary feedback:** Attempting to play `next` on the last song or `previous` on the first song alerts the user while keeping the current track selected.
+### Desktop GUI Workflow
+1. **Launch:** Run `MusicPlaylistManagerGUI`. Previously saved songs in `data/playlist.txt` load automatically.
+2. **Add:** Click `＋ Add Song` on the toolbar. Enter title and artist. Click `Add Song`.
+3. **Select:** Double-click any row to set it as active (`NOW SELECTED`).
+4. **Navigate:** Click `⏮ Prev` or `Next ⏭` in the bottom bar to move sequentially across the playlist.
+5. **Shuffle:** Click `🔀 Shuffle` to jump to an unbiased random track without changing song positions.
+6. **Sort:** Click `🔤 Sort (A-Z)` to sort titles alphabetically in-place via pointer rewiring.
+7. **Search:** Type in the search bar to filter matching songs instantly.
 
 ---
 
-## 11. File Persistence Mechanism
+## 12. File Persistence Mechanism
 
 The playlist automatically synchronizes with `data/playlist.txt`.
 
@@ -274,9 +339,7 @@ Records are serialized line-by-line using `std::quoted` from `<iomanip>`:
 
 ---
 
-## 12. Time and Space Complexity Analysis
-
-The table below describes the actual algorithmic complexities of all major operations:
+## 13. Time and Space Complexity Analysis
 
 | Operation | Time Complexity (Average) | Time Complexity (Worst Case) | Space Complexity (Auxiliary) | Justification |
 | :--- | :---: | :---: | :---: | :--- |
@@ -302,26 +365,25 @@ The table below describes the actual algorithmic complexities of all major opera
 
 ---
 
-## 13. Limitations
+## 14. Limitations
 
 - **Sequential Access for Searching:** Since nodes are linked via pointers rather than contiguous memory, binary search cannot be applied; lookup is bounded by $O(N)$.
-- **Terminal Display Truncation:** Very long titles ($> 28$ characters) or artists ($> 22$ characters) are displayed with an ellipsis (`...`) in tabular listings to maintain formatting alignment (full titles remain preserved in memory and storage).
 - **In-Memory Queue:** Playlist updates operate in RAM before being flushed to disk.
 
 ---
 
-## 14. Future Roadmap
+## 15. Future Roadmap
 
-- [ ] Add circular playlist looping mode (where `tail->next = head` and `head->prev = tail`).
+- [ ] Add circular playlist looping mode (`tail->next = head` and `head->prev = tail`).
 - [ ] Implement Merge Sort on the doubly linked list to achieve $O(N \log N)$ sorting time.
+- [ ] Support drag-and-drop song reordering in the GUI table by rewiring linked-list node pointers.
 - [ ] Support multiple distinct playlists through a playlist catalog manager.
-- [ ] Implement song duration tracking and total playlist playtime calculations.
 
 ---
 
-## 15. Example Terminal Output
+## 16. Example Outputs
 
-### Displaying Playlist
+### CLI Output
 ```text
 ========================================================================================
                                PLAYLIST (FORWARD: HEAD -> TAIL)                         
@@ -337,22 +399,16 @@ The table below describes the actual algorithmic complexities of all major opera
   Total Songs: 5
 ```
 
-### Playing Next Track
-```text
-  [SUCCESS] Skipped to next song:
-  ▶ Now Playing: "Hotel California" by Eagles (ID: 2)
-```
-
 ---
 
-## 16. Author & Contributors
+## 17. Author & Contributors
 
+- **Author / Developer:** OsmosisBinLaden ([@Ayuush018](https://github.com/Ayuush018))
 - **Course:** Advanced Data Structures and Algorithms (ADSA)
-- **Developer / Student:** `[Your Name / Placeholder]`
-- **Repository:** `[Your GitHub Repository Link]`
+- **Repository:** [https://github.com/Ayuush018/Music-Playlist-Manager](https://github.com/Ayuush018/Music-Playlist-Manager)
 
 ---
 
-## 17. License
+## 18. License
 
 This project is licensed under the [MIT License](LICENSE) - open for educational and portfolio demonstration use.
