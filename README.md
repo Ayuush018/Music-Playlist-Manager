@@ -10,7 +10,24 @@ The project features two distinct user interfaces built on top of the exact same
 
 ---
 
+## Project Report
+
+The complete academic project report for this Advanced Data Structures (ADS) course project is available in PDF format:
+
+📄 **[View Project Report (PDF)](docs/Music_Playlist_Manager_Project_Report_Ayush_Chauhan.pdf)**
+
+The report provides comprehensive academic documentation covering:
+- **System Architecture & Design:** Layered three-tier architecture decoupling the presentation frontends from the data structure core.
+- **Custom Doubly Linked List:** Manual heap memory allocation, raw pointer manipulation (`prev`, `next`, `head`, `tail`, `current`), boundary safety, and selection cursor management.
+- **Algorithms & Complexity Analysis:** $O(1)$ tail appends, $O(N)$ deletion with pointer relinking, true in-place alphabetical sorting without auxiliary buffers, uniform random shuffle using `<random>` (`std::mt19937`), and comprehensive Big-O justifications.
+- **Modern Qt 6 Desktop GUI:** Spotify-inspired dark aesthetic (QSS), responsive layout, direct table binding without duplicate containers, modal dialogs, and real-time search filtering.
+- **Implementation Details:** Verified C++17 and Qt 6 code listings for `SongNode`, `DoublyLinkedList`, `PlaylistManager`, `MainWindow`, and `CMakeLists.txt`.
+- **Testing & Verification:** Headless automated test suite (`tests/verify_gui_and_backend.cpp`), 10-point test case matrix, defensive boundary checks, and empirical results.
+
+---
+
 ## Table of Contents
+- [Project Report](#project-report)
 1. [Project Overview](#project-overview)
 2. [Academic Objectives](#academic-objectives)
 3. [Key Features](#key-features)
